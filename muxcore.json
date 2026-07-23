@@ -3,7 +3,12 @@
   "description": "Prometheus metrics exporter and provider",
   "version": "0.1.0",
   "author": "MuxCore",
-  "roles": ["infrastructure"],
-  "capabilities": ["metrics"],
+  "roles": [
+    "infrastructure"
+  ],
+  "capabilities": [
+    "metrics",
+    "metrics.prometheus"
+  ],
   "contracts": []
 }

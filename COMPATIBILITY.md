@@ -10,7 +10,7 @@
 
 | Contract | Capability | Status |
 |----------|-----------|--------|
-| —        | —         | Planned |
+| —        | `metrics` | Current |
 
 ## Breaking Changes
 

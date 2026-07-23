@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -21,6 +22,7 @@ import (
 
 type Module struct {
 	metricsv1.UnimplementedMetricsServiceServer
+	mu         sync.Mutex
 	registry   *prometheus.Registry
 	counters   map[string]prometheus.Counter
 	gauges     map[string]prometheus.Gauge
@@ -74,7 +76,7 @@ func (m *Module) Info() contracts.ModuleInfo {
 		Roles:        []string{"infrastructure"},
 		Description:  "Prometheus metrics exporter and provider",
 		Author:       "MuxCore",
-		Capabilities: []string{contracts.CapabilityMetrics},
+		Capabilities: []string{contracts.CapabilityMetrics, "metrics.prometheus"},
 		HTTPAddr:     m.grpcAddr,
 	}
 }
@@ -145,6 +147,8 @@ func (m *Module) metricKey(name string, labels prometheus.Labels) string {
 func (m *Module) RegisterCounter(ctx context.Context, req *metricsv1.RegisterCounterRequest) (*metricsv1.RegisterCounterResponse, error) {
 	labels := m.labelsToMap(req.GetLabels())
 	key := m.metricKey(req.GetName(), labels)
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	if _, ok := m.counters[key]; ok {
 		return &metricsv1.RegisterCounterResponse{Status: "already exists"}, nil
 	}
@@ -159,6 +163,8 @@ func (m *Module) RegisterCounter(ctx context.Context, req *metricsv1.RegisterCou
 func (m *Module) RegisterGauge(ctx context.Context, req *metricsv1.RegisterGaugeRequest) (*metricsv1.RegisterGaugeResponse, error) {
 	labels := m.labelsToMap(req.GetLabels())
 	key := m.metricKey(req.GetName(), labels)
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	if _, ok := m.gauges[key]; ok {
 		return &metricsv1.RegisterGaugeResponse{Status: "already exists"}, nil
 	}
@@ -173,6 +179,8 @@ func (m *Module) RegisterGauge(ctx context.Context, req *metricsv1.RegisterGauge
 func (m *Module) RegisterHistogram(ctx context.Context, req *metricsv1.RegisterHistogramRequest) (*metricsv1.RegisterHistogramResponse, error) {
 	labels := m.labelsToMap(req.GetLabels())
 	key := m.metricKey(req.GetName(), labels)
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	if _, ok := m.histograms[key]; ok {
 		return &metricsv1.RegisterHistogramResponse{Status: "already exists"}, nil
 	}
@@ -191,7 +199,9 @@ func (m *Module) RegisterHistogram(ctx context.Context, req *metricsv1.RegisterH
 func (m *Module) IncrementCounter(ctx context.Context, req *metricsv1.IncrementCounterRequest) (*metricsv1.IncrementCounterResponse, error) {
 	labels := m.labelsToMap(req.GetLabels())
 	key := m.metricKey(req.GetName(), labels)
+	m.mu.Lock()
 	c, ok := m.counters[key]
+	m.mu.Unlock()
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "counter %q not registered", key)
 	}
@@ -202,7 +212,9 @@ func (m *Module) IncrementCounter(ctx context.Context, req *metricsv1.IncrementC
 func (m *Module) SetGauge(ctx context.Context, req *metricsv1.SetGaugeRequest) (*metricsv1.SetGaugeResponse, error) {
 	labels := m.labelsToMap(req.GetLabels())
 	key := m.metricKey(req.GetName(), labels)
+	m.mu.Lock()
 	g, ok := m.gauges[key]
+	m.mu.Unlock()
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "gauge %q not registered", key)
 	}
@@ -213,7 +225,9 @@ func (m *Module) SetGauge(ctx context.Context, req *metricsv1.SetGaugeRequest) (
 func (m *Module) ObserveHistogram(ctx context.Context, req *metricsv1.ObserveHistogramRequest) (*metricsv1.ObserveHistogramResponse, error) {
 	labels := m.labelsToMap(req.GetLabels())
 	key := m.metricKey(req.GetName(), labels)
+	m.mu.Lock()
 	h, ok := m.histograms[key]
+	m.mu.Unlock()
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "histogram %q not registered", key)
 	}

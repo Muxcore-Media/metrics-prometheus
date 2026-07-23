@@ -6,7 +6,7 @@ import (
 )
 
 func TestModuleInfo(t *testing.T) {
-	m := NewModule()
+	m := NewModule(Config{})
 	info := m.Info()
 	if info.ID == "" {
 		t.Error("module ID must not be empty")
@@ -17,7 +17,7 @@ func TestModuleInfo(t *testing.T) {
 }
 
 func TestModuleLifecycle(t *testing.T) {
-	m := NewModule()
+	m := NewModule(Config{GRPCAddr: ":0", HTTPAddr: ":0"})
 	ctx := context.Background()
 
 	if err := m.Init(ctx); err != nil {

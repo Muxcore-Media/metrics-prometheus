@@ -4,13 +4,16 @@
 
 | Module Version | Core Version | Status |
 |----------------|-------------|--------|
-| v0.1.0         | v0.4.0+     | Current |
+| v0.1.0         | v0.5.0+     | Current |
 
-## Contracts
+## Capabilities
 
-| Contract | Capability | Status |
-|----------|-----------|--------|
-| —        | `metrics` | Current |
+| Capability | Status |
+|------------|--------|
+| `metrics` | Current |
+| `metrics.prometheus` | Current |
+
+Scrape endpoint: HTTP `GET /metrics` on `METRICS_HTTP_ADDR` (default `:9901`).
 
 ## Breaking Changes
 

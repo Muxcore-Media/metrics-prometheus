@@ -1,14 +1,15 @@
 {
   "name": "Metrics Prometheus",
   "description": "Prometheus metrics exporter and provider",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "MuxCore",
   "roles": [
     "infrastructure"
   ],
   "capabilities": [
     "metrics",
-    "metrics.prometheus"
+    "metrics.prometheus",
+    "settings"
   ],
   "contracts": []
 }

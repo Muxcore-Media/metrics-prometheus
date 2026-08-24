@@ -23,20 +23,20 @@ import (
 
 type Module struct {
 	metricsv1.UnimplementedMetricsServiceServer
-	mu         sync.Mutex
-	cfgMu      sync.RWMutex
-	registry   *prometheus.Registry
-	counters   map[string]prometheus.Counter
-	gauges     map[string]prometheus.Gauge
-	histograms map[string]prometheus.Histogram
-	grpcSrv    *grpc.Server
-	httpSrv    *http.Server
-	grpcLis    net.Listener
-	httpLis    net.Listener
-	scrape     *scrapeHandler
-	id         string
-	grpcAddr   string
-	httpAddr   string
+	mu          sync.Mutex
+	cfgMu       sync.RWMutex
+	registry    *prometheus.Registry
+	counters    map[string]prometheus.Counter
+	gauges      map[string]prometheus.Gauge
+	histograms  map[string]prometheus.Histogram
+	grpcSrv     *grpc.Server
+	httpSrv     *http.Server
+	grpcLis     net.Listener
+	httpLis     net.Listener
+	scrape      *scrapeHandler
+	id          string
+	grpcAddr    string
+	httpAddr    string
 	metricsPath string
 }
 

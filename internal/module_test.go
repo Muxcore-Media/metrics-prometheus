@@ -57,8 +57,12 @@ func TestModuleLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GET /metrics: %v", err)
 	}
-	io.Copy(io.Discard, resp.Body)
-	resp.Body.Close()
+	if _, err := io.Copy(io.Discard, resp.Body); err != nil {
+		t.Fatalf("drain body: %v", err)
+	}
+	if err := resp.Body.Close(); err != nil {
+		t.Fatalf("close body: %v", err)
+	}
 	if resp.StatusCode != 200 {
 		t.Fatalf("status=%d", resp.StatusCode)
 	}
@@ -69,7 +73,9 @@ func TestModuleLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	resp2.Body.Close()
+	if err := resp2.Body.Close(); err != nil {
+		t.Fatalf("close body: %v", err)
+	}
 	if resp2.StatusCode != 404 {
 		t.Fatalf("old path status=%d", resp2.StatusCode)
 	}
@@ -77,8 +83,12 @@ func TestModuleLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	io.Copy(io.Discard, resp3.Body)
-	resp3.Body.Close()
+	if _, err := io.Copy(io.Discard, resp3.Body); err != nil {
+		t.Fatalf("drain body: %v", err)
+	}
+	if err := resp3.Body.Close(); err != nil {
+		t.Fatalf("close body: %v", err)
+	}
 	if resp3.StatusCode != 200 {
 		t.Fatalf("new path status=%d", resp3.StatusCode)
 	}

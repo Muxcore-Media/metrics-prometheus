@@ -18,12 +18,25 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "9900"
+      - "9900:9900"
+      - "9901:9901"
     environment:
       MUXCORE_GRPC_ADDR: core:9090
       MUXCORE_INSECURE_DISABLE_TLS: "true"
       MUXCORE_LOG_LEVEL: debug
       MUXCORE_MODULE_ID: metrics-prometheus
+      METRICS_GRPC_ADDR: ":9900"
+      METRICS_HTTP_ADDR: ":9901"
+      METRICS_PATH: /metrics
     depends_on:
       core:
         condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9099:9090"
+    depends_on:
+      - metrics-prometheus

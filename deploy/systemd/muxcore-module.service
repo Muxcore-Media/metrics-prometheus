@@ -7,6 +7,9 @@ Wants=network-online.target
 Type=simple
 User=muxcore
 Group=muxcore
+Environment=METRICS_GRPC_ADDR=127.0.0.1:9900
+Environment=METRICS_HTTP_ADDR=127.0.0.1:9901
+Environment=METRICS_PATH=/metrics
 ExecStart=/usr/local/bin/metrics-prometheus \
   --muxcore-mesh-addr localhost:9090 \
   --muxcore-module-id metrics-prometheus

@@ -24,8 +24,12 @@ Prometheus ──→ GET /metrics (HTTP) ───────────┘
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `METRICS_GRPC_ADDR` | `:9900` | Metrics gRPC listen address |
+| `METRICS_GRPC_ADDR` | `127.0.0.1:9900` | Metrics gRPC listen address (loopback by default) |
 | `METRICS_HTTP_ADDR` | `:9901` | Prometheus scrape HTTP address |
+| `METRICS_TLS_CERT` / `METRICS_TLS_KEY` | — | Inbound gRPC server certificate (falls back to `MUXCORE_TLS_*`) |
+| `METRICS_TLS_CA` | — | CA for optional client verification (falls back to `MUXCORE_TLS_CA`) |
+| `METRICS_TLS_DIR` | `~/.muxcore/tls/metrics-prometheus` | Auto-generated dev TLS material when cert/key unset |
+| `MUXCORE_INSECURE_DISABLE_TLS` | unset | Set `true` to disable TLS on gRPC (dev only) |
 
 ---
 

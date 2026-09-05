@@ -5,6 +5,14 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0/).
 
+## [Unreleased]
+
+### Changed
+
+- Inbound gRPC listens with TLS by default; auto-generates certs under `METRICS_TLS_DIR` when unset.
+- Default gRPC bind is loopback `127.0.0.1:9900` (was `:9900` on all interfaces).
+- Dev escape hatch: `MUXCORE_INSECURE_DISABLE_TLS=true` or `MUXCORE_GRPC_INSECURE=true`.
+
 ## [0.1.1] — 2026-08-10
 
 ### Added

@@ -41,7 +41,24 @@ func TestSettings_MetricsPath(t *testing.T) {
 	}
 }
 
+func TestResolveGRPCAddr(t *testing.T) {
+	t.Setenv("MUXCORE_INSECURE_DISABLE_TLS", "true")
+	t.Setenv("MUXCORE_GRPC_INSECURE", "")
+	if got := resolveGRPCAddr(":9900"); got != "127.0.0.1:9900" {
+		t.Fatalf("insecure wildcard = %q", got)
+	}
+	if got := resolveGRPCAddr("0.0.0.0:9900"); got != "127.0.0.1:9900" {
+		t.Fatalf("insecure 0.0.0.0 = %q", got)
+	}
+
+	t.Setenv("MUXCORE_INSECURE_DISABLE_TLS", "")
+	if got := resolveGRPCAddr(":9900"); got != ":9900" {
+		t.Fatalf("secure wildcard = %q", got)
+	}
+}
+
 func TestModuleLifecycle(t *testing.T) {
+	t.Setenv("MUXCORE_INSECURE_DISABLE_TLS", "true")
 	m := NewModule(Config{GRPCAddr: ":0", HTTPAddr: ":0"})
 	ctx := context.Background()
 

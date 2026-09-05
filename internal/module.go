@@ -12,11 +12,13 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
 
 	"github.com/Muxcore-Media/core/pkg/contracts"
 	metricsv1 "github.com/Muxcore-Media/core/proto/gen/muxcore/metrics/v1"
 	modulesdk "github.com/Muxcore-Media/core/sdk/go/module"
+	"github.com/Muxcore-Media/metrics-prometheus/internal/grpctls"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -52,7 +54,7 @@ func NewModule(cfg Config) *Module {
 		cfg.ID = "metrics-prometheus"
 	}
 	if cfg.GRPCAddr == "" {
-		cfg.GRPCAddr = ":9900"
+		cfg.GRPCAddr = "127.0.0.1:9900"
 	}
 	if cfg.HTTPAddr == "" {
 		cfg.HTTPAddr = ":9901"
@@ -63,6 +65,7 @@ func NewModule(cfg Config) *Module {
 	if v := os.Getenv("METRICS_GRPC_ADDR"); v != "" {
 		cfg.GRPCAddr = v
 	}
+	cfg.GRPCAddr = resolveGRPCAddr(cfg.GRPCAddr)
 	if v := os.Getenv("METRICS_HTTP_ADDR"); v != "" {
 		cfg.HTTPAddr = v
 	}
@@ -122,8 +125,34 @@ func (m *Module) Init(ctx context.Context) error {
 	return nil
 }
 
+func resolveGRPCAddr(addr string) string {
+	if !grpctls.InsecureAllowed() {
+		return addr
+	}
+	host, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		return addr
+	}
+	if host == "" || host == "0.0.0.0" {
+		return "127.0.0.1:" + port
+	}
+	return addr
+}
+
 func (m *Module) Start(ctx context.Context) error {
-	m.grpcSrv = grpc.NewServer()
+	tlsCfg, err := grpctls.ServerConfig()
+	if err != nil {
+		return fmt.Errorf("gRPC TLS: %w", err)
+	}
+	var grpcOpts []grpc.ServerOption
+	if tlsCfg != nil {
+		grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(tlsCfg)))
+	} else {
+		slog.Warn("metrics-prometheus gRPC listening without TLS (dev only)",
+			"addr", m.grpcAddr,
+			"hint", "set MUXCORE_INSECURE_DISABLE_TLS only for local development")
+	}
+	m.grpcSrv = grpc.NewServer(grpcOpts...)
 	metricsv1.RegisterMetricsServiceServer(m.grpcSrv, m)
 	modulesdk.RegisterSettings(m.grpcSrv, m.id, m)
 	go func() {

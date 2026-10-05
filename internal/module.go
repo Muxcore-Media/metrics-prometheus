@@ -18,6 +18,7 @@ import (
 	"github.com/Muxcore-Media/core/pkg/contracts"
 	metricsv1 "github.com/Muxcore-Media/core/proto/gen/muxcore/metrics/v1"
 	modulesdk "github.com/Muxcore-Media/core/sdk/go/module"
+	manifest "github.com/Muxcore-Media/metrics-prometheus"
 	"github.com/Muxcore-Media/metrics-prometheus/internal/grpctls"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -99,7 +100,7 @@ func (m *Module) Info() contracts.ModuleInfo {
 	return contracts.ModuleInfo{
 		ID:           m.id,
 		Name:         "Metrics Prometheus",
-		Version:      "0.1.1",
+		Version:      modulesdk.ManifestVersion(manifest.ManifestJSON),
 		Roles:        []string{"infrastructure"},
 		Description:  "Prometheus metrics exporter and provider",
 		Author:       "MuxCore",

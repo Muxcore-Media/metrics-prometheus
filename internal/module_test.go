@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"testing"
 	"time"
+
+	modulesdk "github.com/Muxcore-Media/core/sdk/go/module"
+	manifest "github.com/Muxcore-Media/metrics-prometheus"
 )
 
 func TestModuleInfo(t *testing.T) {
@@ -14,8 +17,8 @@ func TestModuleInfo(t *testing.T) {
 	if info.ID == "" {
 		t.Error("module ID must not be empty")
 	}
-	if info.Version != "0.1.1" {
-		t.Errorf("version = %q", info.Version)
+	if want := modulesdk.ManifestVersion(manifest.ManifestJSON); info.Version != want {
+		t.Errorf("version = %q, want %q (muxcore.json)", info.Version, want)
 	}
 	found := false
 	for _, c := range info.Capabilities {
